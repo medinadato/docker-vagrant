@@ -8,8 +8,8 @@ MAINTAINER Renato Medina, medina@mdnsolutions.com
 RUN apt-get update
 RUN apt-get install -y software-properties-common
 RUN add-apt-repository ppa:nginx/stable
-RUN apt-get update
-RUN apt-get -y dist-upgrade
+#RUN apt-get update
+#RUN apt-get -y dist-upgrade
 RUN apt-get install -y php5-fpm nginx supervisor
 
 # Mysql
@@ -19,12 +19,13 @@ RUN apt-get -y --force-yes install mysql-server
 # mysql config
 RUN sed -i -e"s/^bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/" /etc/mysql/my.cnf
 
-
 # Setup config files
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 ADD ./nginx/default /etc/nginx/sites-enabled/default
 ADD ./supervisor/supervisord.conf /etc/supervisor/supervisord.conf
 ADD ./php-fpm/php-fpm.conf /etc/php5/fpm/php-fpm.conf
+ADD ./mysql/mysqld.cnf /etc/mysql/mysql.conf.d/mysqld.cnf
+ADD ./mysql/supervised_mysql /usr/sbin/supervised_mysql
 
 # Shared volume
 RUN mkdir -p /var/www
@@ -36,3 +37,7 @@ USER root
 
 # Expose port 80 of the container
 EXPOSE 80
+
+# Extra setup
+#RUN apt-get install nano
+#RUM echo "export TERM=xterm" >>  /root/.bashrc
